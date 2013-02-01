@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Threading;
+using System.Windows;
 
 namespace ScriptCommander
 {
@@ -19,6 +21,8 @@ namespace ScriptCommander
         {
             var s = new Settings();
             AppSettings = s;
+            var c = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = c;
         }
 
         void App_Exit(object sender, ExitEventArgs e)

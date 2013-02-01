@@ -25,8 +25,11 @@ namespace ScriptCommander
                 {
                     if (args.PropertyName == "Trace")
                     {
-                        UiTraceOut.Text = traceListener.Trace;
-                        ScrollParent(UiTraceOut);
+                        Dispatcher.Invoke(() =>
+                        {
+                            UiTraceOut.Text = traceListener.Trace;
+                            ScrollParent(UiTraceOut);
+                        });
                     }
                 };
 
@@ -34,9 +37,12 @@ namespace ScriptCommander
                 {
                     if (args.PropertyName == "SelectedScriptPath")
                     {
-                        var path = Browser.SelectedScriptPath;
-                        Title = path;
-                        UiScriptCommander.ScriptPath = path;
+                        Dispatcher.Invoke(() =>
+                        {
+                            var path = Browser.SelectedScriptPath;
+                            Title = path;
+                            UiScriptCommander.ScriptPath = path;
+                        });
                     }
                 };
         }
@@ -44,7 +50,7 @@ namespace ScriptCommander
         private static void ScrollParent(FrameworkElement element)
         {
             if (element == null) return;
-            
+
             var textBoxBase = element.Parent as TextBoxBase;
             if (textBoxBase != null)
             {

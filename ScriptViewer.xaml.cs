@@ -38,6 +38,18 @@ namespace ScriptCommander
             var lines = File.ReadLines(scriptPath);
             UiScriptList.ItemsSource = lines;
             UiScriptList.SelectedIndex = 0;
+
+            if (_process != null && _process.Process != null)
+            {
+//                _process.Process.CloseMainWindow();
+//                _process.Process.Close();
+            }
+
+            var procStartInfo = new ProcessStartInfo("cmd");
+            var app = (App)Application.Current;
+            procStartInfo.WorkingDirectory = app.AppSettings.AdbDirectory;
+            _process = new ConsoleProcess(procStartInfo);
+            _process.Start();
         }
 
         public ScriptViewer()
@@ -55,9 +67,6 @@ namespace ScriptCommander
             {
                 UiScriptList.SelectedIndex++;
             }
-            else
-            {
-            }
         }
 
         private void ExecuteCommand(string cmd)
@@ -70,20 +79,7 @@ namespace ScriptCommander
                 }
                 else
                 {
-                    if (_process != null && _process.Process != null)
-                    {
-                        _process.Process.WaitForExit();
-                    }
-
-                    var strings = cmd.Split(' ');
-                    var fileName = strings.First();
-                    var arguments = strings.Skip(1).Aggregate((ac, s) => ac + ' ' + s);
-
-                    var procStartInfo = new ProcessStartInfo(fileName, arguments);
-                    var app = (App)Application.Current;
-                    procStartInfo.WorkingDirectory = app.AppSettings.AdbDirectory;
-                    _process = new ConsoleProcess(procStartInfo);
-                    _process.Start();
+                    _process.Input.WriteLine(cmd);
                 }
             }
             catch (Exception e)

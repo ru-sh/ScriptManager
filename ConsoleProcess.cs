@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 
 namespace ScriptCommander
 {
@@ -7,9 +8,26 @@ namespace ScriptCommander
         public Process Process { get; private set; }
         private readonly ProcessStartInfo _startInfo;
 
+        public StreamWriter Input { get; set; }
+
         public ConsoleProcess(ProcessStartInfo startInfo)
         {
             _startInfo = startInfo;
+
+            _startInfo.RedirectStandardInput = true;
+            _startInfo.RedirectStandardOutput = true;
+            _startInfo.RedirectStandardError = true;
+            _startInfo.CreateNoWindow = false;
+            _startInfo.UseShellExecute = false;
+
+            Process = new Process
+            {
+                StartInfo = _startInfo,
+                EnableRaisingEvents = true,
+            };
+
+            Process.ErrorDataReceived += ErrorDataReceived;
+            Process.OutputDataReceived += OutputDataReceived;
         }
 
         public void Start()
@@ -18,29 +36,17 @@ namespace ScriptCommander
             Trace.Write(" ");
             Trace.WriteLine(_startInfo.Arguments);
 
-            _startInfo.RedirectStandardOutput = true;
-            _startInfo.RedirectStandardError = true;
-            _startInfo.CreateNoWindow = false;
-            _startInfo.UseShellExecute = false;
-
-            Process = new Process
-                {
-                    StartInfo = _startInfo, 
-                    EnableRaisingEvents = true
-                };
-
-            Process.ErrorDataReceived += ErrorDataReceived;
-            Process.OutputDataReceived += OutputDataReceived;
-
             Process.Start();
 
+            Input = Process.StandardInput;
             Process.BeginErrorReadLine();
             Process.BeginOutputReadLine();
         }
 
         private void OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Trace.Write(e.Data);
+            if (e.Data.Length > 0)
+                Trace.WriteLine(e.Data);
         }
 
         private void ErrorDataReceived(object sender, DataReceivedEventArgs e)
