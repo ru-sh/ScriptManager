@@ -17,10 +17,12 @@ namespace ScriptCommander
             get { return (string)(this["ScriptsDir"]); }
             set { this["ScriptsDir"] = value; }
         }
+
+        [ApplicationScopedSetting]
         public string AdbDirectory
         {
-            get { return ConfigurationManager.AppSettings["AdbDirectory"]; }
-            set { ConfigurationManager.AppSettings["AdbDirectory"] = value; }
+            get { return (string)(this["AdbDirectory"]); }
+            set { this["AdbDirectory"] = value; }
         }
 
     }

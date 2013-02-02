@@ -45,8 +45,10 @@ namespace ScriptCommander
 
         private void OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (e.Data.Length > 0)
+            if (!string.IsNullOrEmpty(e.Data))
+            {
                 Trace.WriteLine(e.Data);
+            }
         }
 
         private void ErrorDataReceived(object sender, DataReceivedEventArgs e)
