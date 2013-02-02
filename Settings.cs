@@ -18,7 +18,7 @@ namespace ScriptCommander
             set { this["ScriptsDir"] = value; }
         }
 
-        [ApplicationScopedSetting]
+        [UserScopedSetting]
         public string AdbDirectory
         {
             get { return (string)(this["AdbDirectory"]); }

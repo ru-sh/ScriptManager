@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using ScriptCommander.Annotations;
 
 namespace ScriptCommander
@@ -93,6 +94,14 @@ namespace ScriptCommander
         {
             var handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void UiTxtRun_OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ButtonBase_OnClick(sender, null);
+            }
         }
     }
 }

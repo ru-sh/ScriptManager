@@ -21,7 +21,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="UiTxtRun" Text="{Binding ElementName=UiScriptList, Path=SelectedValue, Mode=OneWay}" FontSize="17" VerticalContentAlignment="Center" />
+            <TextBox x:Name="UiTxtRun" Text="{Binding ElementName=UiScriptList, Path=SelectedValue, Mode=OneWay}" 
+                     FontSize="17" VerticalContentAlignment="Center"
+                     KeyUp="UiTxtRun_OnKeyUp"/>
             <Button x:Name="UiBtnRun" Content="Run" Grid.Column="1" Click="ButtonBase_OnClick" />
             <!--<Grid Grid.Column="1" VerticalAlignment="Top">
                 <Grid.RowDefinitions>
