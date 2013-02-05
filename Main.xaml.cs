@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -27,17 +28,13 @@ namespace ScriptCommander
             var traceListener = new TextTraceListener();
             Trace.Listeners.Add(traceListener);
 
-            traceListener.PropertyChanged += (o, args) =>
-                {
-                    if (args.PropertyName == "Trace")
-                    {
-                        Dispatcher.Invoke(() =>
+            UiScriptCommander.StandartOutput
+                .Merge(UiScriptCommander.ErrorOutput)
+                    .Subscribe(str => Dispatcher.Invoke(() =>
                         {
-                            UiTraceOut.Text = traceListener.Trace;
+                            UiTraceOut.Text += str;
                             ScrollParent(UiTraceOut);
-                        });
-                    }
-                };
+                        }));
 
             Browser.PropertyChanged += (o, args) =>
                 {

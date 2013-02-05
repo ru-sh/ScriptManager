@@ -1,14 +1,28 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace ScriptCommander
 {
     public class ConsoleProcess
     {
-        public Process Process { get; private set; }
+        private Process Process { get; set; }
         private readonly ProcessStartInfo _startInfo;
 
         public StreamWriter Input { get; set; }
+
+        private readonly ISubject<char> _standartOutput = new Subject<char>();
+        private readonly ISubject<char> _errorOutput = new Subject<char>();
+
+        public IObservable<char> StandartOutput { get { return _standartOutput; } }
+        public IObservable<char> ErrorOutput { get { return _errorOutput; } }
 
         public ConsoleProcess(ProcessStartInfo startInfo)
         {
@@ -19,15 +33,7 @@ namespace ScriptCommander
             _startInfo.RedirectStandardError = true;
             _startInfo.CreateNoWindow = false;
             _startInfo.UseShellExecute = false;
-
-            Process = new Process
-            {
-                StartInfo = _startInfo,
-                EnableRaisingEvents = true,
-            };
-
-            Process.ErrorDataReceived += ErrorDataReceived;
-            Process.OutputDataReceived += OutputDataReceived;
+            _startInfo.StandardOutputEncoding = Encoding.GetEncoding(866);
         }
 
         public void Start()
@@ -36,24 +42,38 @@ namespace ScriptCommander
             Trace.Write(" ");
             Trace.WriteLine(_startInfo.Arguments);
 
-            Process.Start();
-
-            Input = Process.StandardInput;
-            Process.BeginErrorReadLine();
-            Process.BeginOutputReadLine();
-        }
-
-        private void OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Data))
+            Process = new Process
             {
-                Trace.WriteLine(e.Data);
-            }
+                StartInfo = _startInfo,
+                EnableRaisingEvents = true,
+            };
+
+            Process.Start();
+            Input = Process.StandardInput;
+
+            Action<StreamReader, ISubject<char>> readToSubject = (reader, subject) =>
+                {
+                    char s;
+                    while (Process != null && !Process.HasExited && (s = (char)reader.Read()) != '\0')
+                    {
+                        subject.OnNext(s);
+                    }
+
+                };
+
+            Task.Factory.StartNew(() => readToSubject(Process.StandardOutput, _standartOutput));
+            Task.Factory.StartNew(() => readToSubject(Process.StandardError, _errorOutput));
         }
 
-        private void ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        public void Close()
         {
-            Trace.TraceError(e.Data);
+            if (!Process.HasExited)
+            {
+                Process.CloseMainWindow();
+                Process.Close();
+            }
+
+            Process = null;
         }
     }
 }
