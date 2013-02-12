@@ -16,7 +16,7 @@
                 <RowDefinition Height="5" />
                 <RowDefinition Height="200" />
             </Grid.RowDefinitions>
-            <scriptCommander:ScriptViewer Grid.Row="0" ScriptPath="{Binding ElementName=Browser, Path=SelectedScriptPath}" x:Name="UiScriptCommander" Margin="2" />
+            <scriptCommander:ScriptViewer Grid.Row="0" x:Name="UiScriptCommander" Margin="2" />
             <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="5" />
             <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Row="2">
                 <TextBox AcceptsReturn="True" x:Name="UiTraceOut" Margin="2" />

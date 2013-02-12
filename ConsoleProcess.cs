@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Trace = ScriptCommander.Core.Trace;
 
 namespace ScriptCommander
 {
@@ -31,16 +32,16 @@ namespace ScriptCommander
             _startInfo.RedirectStandardInput = true;
             _startInfo.RedirectStandardOutput = true;
             _startInfo.RedirectStandardError = true;
-            _startInfo.CreateNoWindow = false;
+            _startInfo.CreateNoWindow = true;
             _startInfo.UseShellExecute = false;
             _startInfo.StandardOutputEncoding = Encoding.GetEncoding(866);
         }
 
         public void Start()
         {
-            Trace.Write(_startInfo.FileName);
-            Trace.Write(" ");
-            Trace.WriteLine(_startInfo.Arguments);
+            System.Diagnostics.Trace.Write(_startInfo.FileName);
+            System.Diagnostics.Trace.Write(" ");
+            System.Diagnostics.Trace.WriteLine(_startInfo.Arguments);
 
             Process = new Process
             {

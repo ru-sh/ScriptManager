@@ -2,9 +2,11 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using ScriptCommander.Core;
 
 namespace ScriptCommander
 {
@@ -14,6 +16,7 @@ namespace ScriptCommander
     public partial class Main : Window
     {
         readonly App _app;
+        private ConsoleProcess _console;
 
         public Main()
         {
@@ -26,15 +29,13 @@ namespace ScriptCommander
         void Main_Loaded(object sender, RoutedEventArgs e)
         {
             var traceListener = new TextTraceListener();
-            Trace.Listeners.Add(traceListener);
+            System.Diagnostics.Trace.Listeners.Add(traceListener);
 
-            UiScriptCommander.StandartOutput
-                .Merge(UiScriptCommander.ErrorOutput)
-                    .Subscribe(str => Dispatcher.Invoke(() =>
-                        {
-                            UiTraceOut.Text += str;
-                            ScrollParent(UiTraceOut);
-                        }));
+            traceListener.TextOut.Subscribe(s => Dispatcher.Invoke(() =>
+                {
+                    UiTraceOut.Text += s;
+                    ScrollParent(UiTraceOut);
+                }));
 
             Browser.PropertyChanged += (o, args) =>
                 {
@@ -44,7 +45,29 @@ namespace ScriptCommander
                         {
                             var path = Browser.SelectedScriptPath;
                             Title = path;
-                            UiScriptCommander.ScriptPath = path;
+
+                            if (_console != null)
+                            {
+                                _console.Close();
+                            }
+
+                            var procStartInfo = new ProcessStartInfo("cmd");
+                            var app = (App)Application.Current;
+                            procStartInfo.WorkingDirectory = app.AppSettings.AdbDirectory;
+                            _console = new ConsoleProcess(procStartInfo);
+                            _console.Start();
+
+                            var script = File.ReadAllLines(path);
+                            var api = new Api(_console, script);
+                            var output = new Subject<string>();
+                            var errors = new Subject<string>();
+
+                            api.Console.OnOutputReceived(output.OnNext);
+                            api.Console.OnErrorReceived(errors.OnNext);
+
+                            output.Merge(errors).Subscribe(str => System.Diagnostics.Trace.Write(str));
+
+                            UiScriptCommander.Api = api;
                         });
                     }
                 };
@@ -52,7 +75,6 @@ namespace ScriptCommander
             var adbDirectory = _app.AppSettings.AdbDirectory;
             if (string.IsNullOrWhiteSpace(adbDirectory))
             {
-
                 SetAdbPath();
             }
         }

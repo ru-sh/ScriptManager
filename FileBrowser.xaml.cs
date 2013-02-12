@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ScriptCommander.Annotations;
+using Trace = ScriptCommander.Core.Trace;
 
 namespace ScriptCommander
 {
@@ -96,7 +97,7 @@ namespace ScriptCommander
             }
             catch (Exception e)
             {
-                Trace.WriteLine(e.ToString(), "Error");
+                System.Diagnostics.Trace.WriteLine(e.ToString(), "Error");
             }
 
             this.UpdateLayout();

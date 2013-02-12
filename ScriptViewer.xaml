@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
+             mc:Ignorable="d" x:Name="Me"
              d:DesignHeight="300" d:DesignWidth="800">
     <UserControl.Resources>
 <!--        <Style TargetType="{x:Type Button}">-->
@@ -21,21 +21,14 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="UiTxtRun" Text="{Binding ElementName=UiScriptList, Path=SelectedValue, Mode=OneWay}" 
+            <TextBox x:Name="UiTxtRun" Text="{Binding ElementName=Me, Path=Api.Script.CurrentLine, Mode=OneWay}" 
                      FontSize="17" VerticalContentAlignment="Center"
                      KeyUp="UiTxtRun_OnKeyUp"/>
             <Button x:Name="UiBtnRun" Content="Run" Grid.Column="1" Click="ButtonBase_OnClick" />
-            <!--<Grid Grid.Column="1" VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <Button Content="↑" Grid.Row="0" Height="30" Visibility="Collapsed" />
-                <Button Content="↓" Grid.Row="2" Height="30" Margin="3" Visibility="Collapsed" />
-            </Grid>-->
         </Grid>
-        <ListBox Grid.Row="1" x:Name="UiScriptList">
+        <ListBox Grid.Row="1" x:Name="UiScriptList" 
+                 ItemsSource="{Binding ElementName=Me, Path=Api.Script.Lines}" 
+                 SelectedIndex="{Binding ElementName=Me, Path=Api.Script.CurrentIndex, Mode=TwoWay}">
 
         </ListBox>
 
